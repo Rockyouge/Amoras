@@ -6,6 +6,10 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from .models import Livro
 
+import json
+from django.http import JsonResponse
+from .models import Livro
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class LivroViews(View):
@@ -19,9 +23,10 @@ class LivroViews(View):
     def post(self, request):
         try:
             # Acessa dados de formulário
-            titulo = request.POST.get('titulo')
-            autor = request.POST.get('autor')
-            publicado_em = request.POST.get('publicado_em')
+            data = json.loads(request.body)
+            titulo = data.get('titulo')
+            autor = data.get('autor')
+            publicado_em = data.get('publicado_em')
 
             if not titulo or not autor or not publicado_em:
                 return HttpResponse('Todos os campos são necessários.', status=400)
@@ -31,21 +36,23 @@ class LivroViews(View):
                 autor=autor,
                 publicado_em=publicado_em
             )
+
             return HttpResponse(f'Livro criado com sucesso! ID: {livro.id}', status=201)
         except Exception as e:
             return HttpResponse(f'Erro inesperado: {str(e)}', status=500)
         
     def put(self, request):
         try:
+            data = json.loads(request.body)
             # Acessa dados de formulário
-            livro_id = request.POST.get('id')
+            livro_id = data.get('id')
             if not livro_id:
                 return HttpResponse('ID do livro é necessário.', status=400)
                 
             livro = Livro.objects.get(id=livro_id)
-            livro.titulo = request.POST.get('titulo', livro.titulo)
-            livro.autor = request.POST.get('autor', livro.autor)
-            livro.publicado_em = request.POST.get('publicado_em', livro.publicado_em)
+            livro.titulo = data.get('titulo', livro.titulo)
+            livro.autor = data.get('autor', livro.autor)
+            livro.publicado_em = data.get('publicado_em', livro.publicado_em)
             livro.save()
             
             return HttpResponse('Livro atualizado com sucesso!')
@@ -57,8 +64,9 @@ class LivroViews(View):
 
     def delete(self, request):
         try:
+            data = json.loads(request.body)
             # Acessa dados de formulário
-            livro_id = request.POST.get('id')
+            livro_id = data.get('id')
             if not livro_id:
                 return HttpResponse('ID do livro é necessário.', status=400)
 
