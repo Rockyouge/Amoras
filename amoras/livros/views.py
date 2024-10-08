@@ -13,16 +13,22 @@ from .models import Livro
 
 @method_decorator(csrf_exempt, name='dispatch')
 class LivroViews(View):
+
     def get(self, request):
         livros = Livro.objects.all()
-        livros_list = [f"ID: {livro.id}, Título: {livro.titulo}, Autor: {livro.autor}, Publicado em: {livro.publicado_em}" for livro in livros]
-        response_content = "\n".join(livros_list)
-        return HttpResponse(response_content, content_type="text/plain")
+        livros_list = [
+            {
+                "id": livro.id,
+                "título": livro.titulo,
+                "autor": livro.autor,
+                "publicado_em": livro.publicado_em.strftime('%Y-%m-%d')  # Formato de data, se necessário
+            } for livro in livros
+        ]
+        return JsonResponse(livros_list, safe=False)
 
     
     def post(self, request):
         try:
-            # Acessa dados de formulário
             data = json.loads(request.body)
             titulo = data.get('titulo')
             autor = data.get('autor')

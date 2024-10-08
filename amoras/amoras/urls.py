@@ -20,5 +20,6 @@ from livros import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('livros/', views.LivroViews.as_view(), name='livro-views')
+    path('livros/', views.LivroViews.as_view(), name='livro-views'),
+    path('livros/<int:id>', views.LivroViews.as_view(), name= 'livro-detail')
 ]
